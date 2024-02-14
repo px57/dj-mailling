@@ -1,0 +1,8 @@
+{
+    "base_path": "/var/projects/buzz/buzz-intern-server/dj-mailling/.gpm/base.json",
+    "gpm_path": "/var/projects/buzz/buzz-intern-server/dj-mailling/.gpm",
+    "name": "dj-mailling",
+    "project_type": "module",
+    "repository_url": "https://github.com/px57/dj-mailling.git",
+    "root_path": "/var/projects/buzz/buzz-intern-server/dj-mailling"
+}
