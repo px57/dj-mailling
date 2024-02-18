@@ -1,8 +1,9 @@
 from django.db import models
 from kernel.models.base_metadata_model import BaseMetadataModel
 from mailling.rules.stack import MAILLING_RULESTACK
+from django.forms.models import model_to_dict
 
-class Mail(BaseMetadataModel):
+class MailTemplate(BaseMetadataModel):
     """
     Mail model to store the mail to be sended
     """
@@ -10,16 +11,17 @@ class Mail(BaseMetadataModel):
         max_length=255, 
         null=True, 
         blank=True,
-        choices=MAILLING_RULESTACK.models_choices()
+        choices=MAILLING_RULESTACK.models_choices(),
+        unique=True,
     )
 
     subject = models.CharField(
         max_length=255, 
         null=True, 
-        blank=True
+        blank=True,
     )
 
-    body = models.TextField(
+    email_text = models.TextField(
         null=True, 
         blank=True
     )
@@ -30,20 +32,27 @@ class Mail(BaseMetadataModel):
         blank=True
     )
 
+    def serialize(self):
+        """
+        Serialize the model
+        """
+        serialize = model_to_dict(self)
+        return serialize
+
 class MailSended(BaseMetadataModel):
     """
     MailSended model to store the mail sended by the system
     """
     to = models.JSONField(
         null=True,
-        blank=True
+        blank=True,
     )
 
-    mail = models.ForeignKey(
-        'mailling.Mail',
+    template = models.ForeignKey(
+        'mailling.MailTemplate',
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
 
     params = models.JSONField(
@@ -69,14 +78,14 @@ class Unsuscribe(BaseMetadataModel):
         blank=True
     )
 
-    mail = models.EmailField(
-        max_length=255,
+    email = models.EmailField(
         null=True,
-        blank=True
+        blank=True,
     )
 
-    email_key = models.CharField(
-        max_length=255,
+    template = models.ForeignKey(   
+        'mailling.MailTemplate',
+        on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
