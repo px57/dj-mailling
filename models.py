@@ -2,6 +2,45 @@ from django.db import models
 from kernel.models.base_metadata_model import BaseMetadataModel
 from mailling.rules.stack import MAILLING_RULESTACK
 from django.forms.models import model_to_dict
+from kernel.models.serialize import serializer__serialize__, serializer__init__
+
+class MailTemplateTranslation(BaseMetadataModel):
+    """
+    MailTemplateTranslation model to store the mail to be sended
+    """
+    subject = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True,
+    )
+
+    email_text = models.TextField(
+        null=True, 
+        blank=True
+    )
+
+    html_src = models.FileField(
+        upload_to='mails/',
+        null=True,
+        blank=True
+    )
+
+    translateObject = models.ForeignKey(
+        'mailling.MailTemplate',
+        on_delete=models.CASCADE,
+        related_name='translates',
+        blank=True,
+        null=True,
+    )
+
+
+    def serialize(self):
+        """
+        Serialize the model
+        """
+        serialize = model_to_dict(self)
+        return serialize
+
 
 class MailTemplate(BaseMetadataModel):
     """
