@@ -1,76 +1,63 @@
 from django.db import models
 from kernel.models.base_metadata_model import BaseMetadataModel
+from mailling.rules.stack import MAILLING_RULESTACK
+
+class Mail(BaseMetadataModel):
+    """
+    Mail model to store the mail to be sended
+    """
+    interface = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True,
+        choices=MAILLING_RULESTACK.models_choices()
+    )
+
+    subject = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True
+    )
+
+    body = models.TextField(
+        null=True, 
+        blank=True
+    )
+
+    html_src = models.FileField(
+        upload_to='mails/',
+        null=True,
+        blank=True
+    )
 
 class MailSended(BaseMetadataModel):
     """
     MailSended model to store the mail sended by the system
     """
-    mail = models.CharField(
-        max_length=255,
+    to = models.JSONField(
         null=True,
         blank=True
     )
-    subject = models.CharField(
-        max_length=255,
+
+    mail = models.ForeignKey(
+        'mailling.Mail',
+        on_delete=models.CASCADE,
         null=True,
         blank=True
     )
-    body = models.TextField(null=True,
-        blank=True
-    )
-    status = models.CharField(
-        max_length=255,
+
+    params = models.JSONField(
         null=True,
-        blank=True
+        blank=True,
+        default=dict
     )
-    error = models.TextField(null=True,
-        blank=True
-    )
-    error_trace = models.TextField(null=True,
-        blank=True
-    )
-    response = models.TextField(null=True,
-        blank=True
-    )
-    response_trace = models.TextField(null=True,
-        blank=True
-    )
-    response_code = models.CharField(
-        max_length=255,
+
+    error = models.JSONField(
         null=True,
-        blank=True
+        blank=True,
+        default=dict
     )
-    response_message = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True
-    )
-    response_status = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True
-    )
-    response_error = models.TextField(null=True,
-        blank=True
-    )
-    response_error_trace = models.TextField(null=True,
-        blank=True
-    )
-    response_error_code = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True
-    )
-    response_error_message = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True
-    )
-    response_error_status = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True
-    )
+
 
 class Unsuscribe(BaseMetadataModel):
     """
