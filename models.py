@@ -8,6 +8,15 @@ class MailTemplateTranslation(BaseMetadataModel):
     """
     MailTemplateTranslation model to store the mail to be sended
     """
+    language = models.CharField(
+        'language',
+        max_length=255,
+        default='fr',
+        choices=(
+            ('fr', 'fr'),
+        ),
+    )
+    
     subject = models.CharField(
         max_length=255, 
         null=True, 
@@ -46,6 +55,12 @@ class MailTemplate(BaseMetadataModel):
     """
     Mail model to store the mail to be sended
     """
+    translation_model = MailTemplateTranslation
+
+    @serializer__init__
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     interface = models.CharField(
         max_length=255, 
         null=True, 
@@ -71,7 +86,8 @@ class MailTemplate(BaseMetadataModel):
         blank=True
     )
 
-    def serialize(self):
+    @serializer__serialize__
+    def serialize(self, request):
         """
         Serialize the model
         """
