@@ -13,9 +13,10 @@ class DefaultRuleClass(InterfaceManager):
     """
     Is the service mail to be used.
     """
-    service_mail = settings.MAILLING_SERVICE
+    _service = settings.MAILLING_SERVICE
 
     """
+
     The label to identify the rule interface.
     """
     label = 'DEFAULT'
@@ -28,16 +29,11 @@ class DefaultRuleClass(InterfaceManager):
     def __init__(self) -> None:
         super().__init__()
 
-    def gpm_pre_init(self):
-        """
-        The gpmInit method.
-        """
-
     def gpm_init(self):
         """
         The gpmInit method.
         """
-        print ('gpmInit###' * 10)
+        super().gpm_init()
         template_info = self.distant_load_template()
         self.template = self.load_template()
     
