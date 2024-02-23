@@ -6,9 +6,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # path(
-    #     'signin/', 
-    #     views.signin, 
-    #     name='profiles__signin'
-    # ),
+    path(
+        'unsubscribe/', 
+        views.unsubscribe, 
+        name='mailling__unsubscribe'
+    ),
+    path(
+        'subscribe/', 
+        views.unsubscribe, 
+        name='mailling__subscribe'
+    ),
 ]

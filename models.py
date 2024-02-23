@@ -144,3 +144,11 @@ class Unsuscribe(BaseMetadataModel):
         null=True,
         blank=True,
     )
+
+    def serialize(self, request):
+        """
+        Serialize the model
+        """
+        serialize = model_to_dict(self)
+        serialize['profile'] = self.profile.serialize(request)
+        return serialize

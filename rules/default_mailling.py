@@ -4,7 +4,6 @@ from django.conf import settings
 from mailling.rules.stack import MAILLING_RULESTACK
 from kernel.interfaces.interfaces import InterfaceManager
 
-
 class DefaultRuleClass(InterfaceManager):
     """
     The default rule class. 
@@ -26,10 +25,15 @@ class DefaultRuleClass(InterfaceManager):
     """
     allow = True
 
+    """
+    Unsuscribe enable flag.
+    """
+    unsubscribe_enable = False
+
     def __init__(self) -> None:
         super().__init__()
 
-    def gpm_init(self):
+    def gpm_init(self, **kwargs):
         """
         The gpmInit method.
         """
@@ -54,48 +58,97 @@ class DefaultRuleClass(InterfaceManager):
     """
     def load_template(self, *args, **kwargs):
         from mailling.models import MailTemplate
-        return MailTemplate.objects.get(interface=self.label)
+        dbMailTemplate = MailTemplate.objects.filter(interface=self.label)
+        if not dbMailTemplate.exists():
+            dbMailTemplate = self.distant_load_template()
+            if dbMailTemplate is None:
+                raise Exception('The template ' + self.label + ' does not exist in the distant service')
+        return dbMailTemplate.first()
 
     """
     Update the template in the database.
     """
     def update_template(self, dbTemplate):
         self.template = dbTemplate
-    
-    """
-    The constructor method.
-    """
-    def check(self, *args, **kwargs):
-        return True
 
-    """
-    The run method.
-    """   
-    def run(self, *args, **kwargs):
-        return True
+    def __mail_has_unsubscribe(self, **kwargs):
+        """
+        Check if the mail has an unsubscribe link.
+        """
+        from mailling.models import Unsuscribe
+        if self.unsubscribe_enable:
+            return False
+        
+        # dbUnsuscribe = Unsuscribe.objects.get(email=kwargs.get('to'))
+        return False
 
-    """
-    The error method.
-    """
-    def error(self, *args, **kwargs):
-        return True
-    
-    """
-    After send the notification, the response method is called.
-    """
-    def response(self, *args, **kwargs):
-        return True
-    
-    """
-    The click method.
-    """
-    def click(self, *args, **kwargs):
-        return True
+    def __generate_unsubscribe_link(
+            self, 
+            res=None,
+            sendTo=None,
+        ):
+        """
+        Generate the unsubscribe link.
+        """
+        return res.create_client_url(f'/v1/mailling/unsubscribe/?email={sendTo.email}&_in={self.label}')
 
-    """
-    The open method.
-    """
-    def open(self, *args, **kwargs):
+    def __get_ctx(
+            self, 
+            res=None, 
+            sendTo=None, 
+            params=None
+        ):
+        """
+        Get the context.
+
+        Args:
+            res: The response object.
+            sendTo: Send to profile 
+            params: The params object.
+        """
+        ctx = {
+            'UNSUBSCRIBE_LINK': self.__generate_unsubscribe_link(
+                res=res, 
+                sendTo=sendTo
+            ),
+        }
+        ctx.update(params)
+        return ctx
+    
+    def send(
+        self, 
+        _inSwitch=None,
+        res=None,
+        sendTo=None,
+        sendBy=None,
+        params=None, 
+        ):
+        """
+        Send the mail.
+
+        Args:
+            _inSwitch: The switcher object.
+            res: The response object.
+            sendTo: Send to profile 
+            sendBy: Send by profile 
+            params: The params object.
+        """
+        if not self.allow:
+            return False
+
+        if not self._service:   
+            return False
+        
+        if self.__mail_has_unsubscribe(sendTo=sendTo):
+            return False
+
+        dbTemplate = self.load_template()
+        ctx = self.__get_ctx(
+            res=res,
+            sendTo=sendTo,
+            params=params
+        )
+
         return True
 
 MAILLING_RULESTACK.set_rule(DefaultRuleClass())
