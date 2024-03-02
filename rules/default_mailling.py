@@ -151,4 +151,4 @@ class DefaultRuleClass(InterfaceManager):
 
         return True
 
-MAILLING_RULESTACK.set_rule(DefaultRuleClass())
+MAILLING_RULESTACK.set_rule(DefaultRuleClass)
