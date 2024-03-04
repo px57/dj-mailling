@@ -27,8 +27,11 @@ class DefaultRuleClass(InterfaceManager):
 
     """
     Unsuscribe enable flag.
+        1. Don't generate the unsubscribe link.
+        2. Don't check if the mail has an unsubscribe link.
+        3. Don't accept the unsubscribe link.
     """
-    unsubscribe_enable = False
+    unsubscribe_enable = True
 
     def __init__(self) -> None:
         super().__init__()
@@ -62,7 +65,12 @@ class DefaultRuleClass(InterfaceManager):
         if not dbMailTemplate.exists():
             dbMailTemplate = self.distant_load_template()
             if dbMailTemplate is None:
-                raise Exception('The template ' + self.label + ' does not exist in the distant service')
+                dbMailTemplate = MailTemplate.objects.create(
+                    interface=self.label,
+                    subject=self.label,
+                )
+                dbMailTemplate.save()
+                return dbMailTemplate
         return dbMailTemplate.first()
 
     """
@@ -138,10 +146,12 @@ class DefaultRuleClass(InterfaceManager):
 
         if not self._service:   
             return False
-        
+
+        print ('SEND MAIL 1')    
         if self.__mail_has_unsubscribe(sendTo=sendTo):
             return False
 
+        print ('SEND MAIL 2')
         dbTemplate = self.load_template()
         ctx = self.__get_ctx(
             res=res,

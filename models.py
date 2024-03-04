@@ -61,6 +61,19 @@ class MailTemplate(BaseMetadataModel):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    status = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True,
+        choices=(
+            ('auto_generated', 'auto_generated'),
+            ('draft', 'draft'),
+            ('published', 'published'),
+            ('inactive', 'inactive'),
+        ),
+        default='auto_generated'
+    )
+
     interface = models.CharField(
         max_length=255, 
         null=True, 
