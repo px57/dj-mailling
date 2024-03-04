@@ -12,10 +12,14 @@ class DefaultRuleClass(InterfaceManager):
     """
     Is the service mail to be used.
     """
-    _service = settings.MAILLING_SERVICE
+    service = settings.MAILLING_SERVICE
 
     """
+    Service module.
+    """
+    service_module = 'mailling.__services__'
 
+    """
     The label to identify the rule interface.
     """
     label = 'DEFAULT'
@@ -33,8 +37,11 @@ class DefaultRuleClass(InterfaceManager):
     """
     unsubscribe_enable = True
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        """
+        The constructor of the default rule class.
+        """
+        super().__init__(*args, **kwargs)
 
     def gpm_init(self, **kwargs):
         """
@@ -144,21 +151,25 @@ class DefaultRuleClass(InterfaceManager):
         if not self.allow:
             return False
 
-        if not self._service:   
+        if not self.service:   
             return False
-
-        print ('SEND MAIL 1')    
+    
         if self.__mail_has_unsubscribe(sendTo=sendTo):
             return False
 
-        print ('SEND MAIL 2')
         dbTemplate = self.load_template()
         ctx = self.__get_ctx(
             res=res,
             sendTo=sendTo,
             params=params
         )
-
+        self.gpm_service.send_mail({
+            'to': sendTo.email,
+            'from': sendBy.email,
+            'subject': dbTemplate.subject,
+            'template': dbTemplate,
+            'ctx': ctx
+        })
         return True
 
 MAILLING_RULESTACK.set_rule(DefaultRuleClass)
