@@ -1,8 +1,11 @@
 
 
 from django.conf import settings
-from mailling.rules.stack import MAILLING_RULESTACK
+from django.urls import reverse
+
 from kernel.interfaces.interfaces import InterfaceManager
+
+from mailling.rules.stack import MAILLING_RULESTACK
 
 class DefaultRuleClass(InterfaceManager):
     """
@@ -13,6 +16,16 @@ class DefaultRuleClass(InterfaceManager):
     Is the service mail to be used.
     """
     service = settings.MAILLING_SERVICE
+
+    """
+    The service configuration name.
+    """
+    service_config_name = 'MAILCHIMP_TRANSACTIONAL'
+
+    """
+    Settings config name.
+    """
+    settings_config_name = 'MAILLING_SERVICE_API_KEYS'
 
     """
     Service module.
@@ -94,7 +107,6 @@ class DefaultRuleClass(InterfaceManager):
         if self.unsubscribe_enable:
             return False
         
-        # dbUnsuscribe = Unsuscribe.objects.get(email=kwargs.get('to'))
         return False
 
     def __generate_unsubscribe_link(
@@ -105,7 +117,8 @@ class DefaultRuleClass(InterfaceManager):
         """
         Generate the unsubscribe link.
         """
-        return res.create_client_url(f'/v1/mailling/unsubscribe/?email={sendTo.email}&_in={self.label}')
+        path = reverse('mailling__unsubscribe')
+        return res.create_client_url(path + f'?email={sendTo.email}&_in={self.label}')
 
     def __get_ctx(
             self, 
@@ -127,6 +140,7 @@ class DefaultRuleClass(InterfaceManager):
                 sendTo=sendTo
             ),
         }
+        print (ctx)
         ctx.update(params)
         return ctx
     
@@ -136,7 +150,7 @@ class DefaultRuleClass(InterfaceManager):
         res=None,
         sendTo=None,
         sendBy=None,
-        params=None, 
+        params=None,
         ):
         """
         Send the mail.
@@ -163,6 +177,7 @@ class DefaultRuleClass(InterfaceManager):
             sendTo=sendTo,
             params=params
         )
+        self.gpm_service.set_config(self)
         self.gpm_service.send_mail({
             'to': sendTo.email,
             'from': sendBy.email,
