@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.urls import reverse
 
-from kernel.interfaces.interfaces import InterfaceManager
+from gpm.interfaces.interfaces import InterfaceManager
 
 from mailling.rules.stack import MAILLING_RULESTACK
 

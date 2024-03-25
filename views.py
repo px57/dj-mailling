@@ -4,7 +4,7 @@ This module contains the views for the mailling app.
 
 from django.shortcuts import render
 
-from kernel.http import Response
+from gpm.http import Response
 
 from mailling.rules.stack import MAILLING_RULESTACK
 from mailling.models import Unsuscribe

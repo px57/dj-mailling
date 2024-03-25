@@ -1,8 +1,8 @@
 from django.db import models
-from kernel.models.base_metadata_model import BaseMetadataModel
+from gpm.models.base_metadata_model import BaseMetadataModel
 from mailling.rules.stack import MAILLING_RULESTACK
 from django.forms.models import model_to_dict
-from kernel.models.serialize import serializer__serialize__, serializer__init__
+from gpm.models.serialize import serializer__serialize__, serializer__init__
 
 class MailTemplateTranslation(BaseMetadataModel):
     """
